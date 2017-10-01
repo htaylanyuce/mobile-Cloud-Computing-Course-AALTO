@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.example.android.visionexercise.MainActivity">
+
+
+    <Button
+        android:id="@+id/btnPickPhoto"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="PICK PHOTO"
+        android:layout_marginBottom="16dp"/>
+
+    <ImageView
+        android:layout_width="100pt"
+        android:layout_height="100pt"
+        android:id="@+id/image"
+        android:layout_marginBottom="16dp"/>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Persons: "
+            android:layout_marginRight="8dp"
+            />
+        <TextView
+            android:id="@+id/txtNumPeople"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0" />
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Barcodes: "
+            android:layout_marginRight="8dp"
+            />
+        <TextView
+            android:id="@+id/txtBarcode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No" />
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+</LinearLayout>
