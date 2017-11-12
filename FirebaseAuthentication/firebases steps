@@ -1,0 +1,14 @@
+Save the application in firebase,
+create sha,
+download json file,
+root gradle file --> addrequired google service plugin or tools->firebase->add what you want
+for authentication, enter the website and select the rules
+
+	add dependencises
+	add authlistener ==> used to decide if the user is logged in or not
+	send the unauthenticated users to sign in
+	sign in set up and sign out tear down
+
+
+	
+

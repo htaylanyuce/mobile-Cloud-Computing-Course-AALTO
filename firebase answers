@@ -1,0 +1,10 @@
+	1 b
+	2 d 
+	3 d
+4 c
+	5 a 
+	6 b no
+	7 a yes
+	8 a c
+	9 ".write": "!data.exists()"
+10 c

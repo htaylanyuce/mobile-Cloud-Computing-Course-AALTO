@@ -1,0 +1,10 @@
+	1 d app.yaml
+	2 b service account
+	3 a b d -- support, allows, supports
+	4 a - yes
+	5 a d
+	6 d - gcloud app browse 
+	7 c - no-promote
+	8 b - gcloud app logs tail 
+	9 a - expose
+	10 c- ADD
