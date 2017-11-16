@@ -1,5 +1,10 @@
 package com.example.android.firebaseauthentication;
 
+
+/**
+ * Created by taylan on 16.11.2017.
+ */
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -8,10 +13,12 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
+import android.widget.AdapterView;
+import android.widget.GridView;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -20,6 +27,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
@@ -30,26 +38,67 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;                         // authentication
     private FirebaseAuth.AuthStateListener mAuthListener;   // listener to listen the authentication situation
     public static final int RC_SIGN_IN = 1;
-
+    private ArrayList<Item> menuList;
+    GridView gridview;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button push = (Button) findViewById(R.id.push);
+        gridview = (GridView) findViewById(R.id.gridview);
 
+        menuList = new ArrayList<>();
+        menuList.add(new Item("Gallery",R.drawable.gallery));
+        menuList.add(new Item("Take Photo",R.drawable.takephoto));
+        menuList.add(new Item("Management",R.drawable.management));
+        menuList.add(new Item("Settings",R.drawable.settings));
+
+
+        ImageAdapter myAdapter=new ImageAdapter(this,R.layout.linear_layout_content_main_page,menuList);
+        gridview.setAdapter(myAdapter);
+
+
+        FirebaseApp.initializeApp(getApplicationContext());
+        mAuth = FirebaseAuth.getInstance();
 
         database = FirebaseDatabase.getInstance();
-        mAuth = FirebaseAuth.getInstance();
         myRef = database.getReference().child("messages"); //database.getReference() gives the root node
 
-        push.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent,
+                                    View v, int position, long id){
+                Intent i;
+                switch (position) {
+                    case 0:
+                        i = new Intent(getApplicationContext(), PhotoGallery.class);
+                        // Pass image index
+                        i.putExtra("id", position);
+                        startActivity(i);
+                        break;
+                    case 1:
+                        i = new Intent(getApplicationContext(), TakePhoto.class);
+                        // Pass image index
+                        i.putExtra("id", position);
+                        startActivity(i);
+                        break;
+                    case 2:
+                         i = new Intent(getApplicationContext(), Management.class);
+                        // Pass image index
+                        i.putExtra("id", position);
+                        startActivity(i);
+                        break;
+                    case 3:
+                         i = new Intent(getApplicationContext(), Settings.class);
+                        // Pass image index
+                        i.putExtra("id", position);
+                        startActivity(i);
+                        break;
+                    default:
+                        break;
+                }
 
-                myRef.push().setValue("Data come");
-             }
+            }
         });
 
         // check if the user is signed in or not
@@ -78,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
-    // this part protect to not to go back
+    // this part protects to not to go back
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -91,10 +140,9 @@ public class MainActivity extends AppCompatActivity {
             }
             else if(resultCode == RESULT_CANCELED)
             {
+                finish();
                 Toast.makeText(getApplicationContext(), "Signed in cancelled", Toast.LENGTH_SHORT).show();
-
             }
-
 
         }
     }
@@ -113,16 +161,18 @@ public class MainActivity extends AppCompatActivity {
     }
     @Override
     public void onPause() {
-        super.onStop();
+        super.onPause();
         if (mAuthListener != null) {
             mAuth.removeAuthStateListener(mAuthListener); // if app is stopped, continue with authentication listener
         }
         detachListener();
     }
 
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+
             case R.id.signout:
                 AuthUI.getInstance().signOut(this); // when menu item is clicked, sign out
                 return true;
