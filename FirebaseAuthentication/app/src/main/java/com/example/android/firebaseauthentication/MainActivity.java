@@ -3,9 +3,16 @@ package com.example.android.firebaseauthentication;
 
 /**
  * Created by taylan on 16.11.2017.
+ *
+ * eklenecekler
+ *      firebase storage ile calışmaya devam
+ *      face detectiona bak
  */
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -15,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
@@ -39,14 +47,76 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth.AuthStateListener mAuthListener;   // listener to listen the authentication situation
     public static final int RC_SIGN_IN = 1;
     private ArrayList<Item> menuList;
-    GridView gridview;
+    private GridView gridview;
+    private TextView noConnection;
+    private ImageAdapter myAdapter;
+    private boolean isConnected;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        FirebaseApp.initializeApp(getApplicationContext());
+//        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 
         gridview = (GridView) findViewById(R.id.gridview);
+        noConnection = (TextView) findViewById(R.id.noConnection);
+
+        ConnectivityManager cm =
+                (ConnectivityManager)getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+
+        if(isConnected)
+        {
+
+            noConnection.setVisibility(View.INVISIBLE);
+
+            mAuth = FirebaseAuth.getInstance();
+
+            database = FirebaseDatabase.getInstance();
+            myRef = database.getReference().child("messages"); //database.getReference() gives the root node
+
+            setGrid();
+            // check if the user is signed in or not
+            mAuthListener = new FirebaseAuth.AuthStateListener() {
+                @Override
+                public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                    FirebaseUser user = firebaseAuth.getCurrentUser();
+                    if (user != null) {
+                        onSignedInInitialize(user.getDisplayName()); // if signed in
+                    } else {
+                        // User is signed out
+                        // sign in page will come here, code below is all about UI
+                        onSignedOutCleanUp();
+                        startActivityForResult(
+                                AuthUI.getInstance()
+                                        .createSignInIntentBuilder()
+                                        .setIsSmartLockEnabled(false)
+                                        .setAvailableProviders(
+                                                Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
+                                                        new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
+                                        .build(),
+                                RC_SIGN_IN);;
+                    }
+
+                }
+            };
+        }
+        else
+        {
+
+            gridview.setVisibility(View.INVISIBLE);
+            noConnection.setVisibility(View.VISIBLE);
+        }
+
+    }
+
+    private void setGrid()
+    {
+        gridview.setVisibility(View.VISIBLE);
 
         menuList = new ArrayList<>();
         menuList.add(new Item("Gallery",R.drawable.gallery));
@@ -55,15 +125,9 @@ public class MainActivity extends AppCompatActivity {
         menuList.add(new Item("Settings",R.drawable.settings));
 
 
-        ImageAdapter myAdapter=new ImageAdapter(this,R.layout.linear_layout_content_main_page,menuList);
+        myAdapter =new ImageAdapter(this,R.layout.linear_layout_content_main_page,menuList);
         gridview.setAdapter(myAdapter);
 
-
-        FirebaseApp.initializeApp(getApplicationContext());
-        mAuth = FirebaseAuth.getInstance();
-
-        database = FirebaseDatabase.getInstance();
-        myRef = database.getReference().child("messages"); //database.getReference() gives the root node
 
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent,
@@ -83,13 +147,13 @@ public class MainActivity extends AppCompatActivity {
                         startActivity(i);
                         break;
                     case 2:
-                         i = new Intent(getApplicationContext(), Management.class);
+                        i = new Intent(getApplicationContext(), Management.class);
                         // Pass image index
                         i.putExtra("id", position);
                         startActivity(i);
                         break;
                     case 3:
-                         i = new Intent(getApplicationContext(), Settings.class);
+                        i = new Intent(getApplicationContext(), Settings.class);
                         // Pass image index
                         i.putExtra("id", position);
                         startActivity(i);
@@ -100,31 +164,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
-        // check if the user is signed in or not
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) {
-                    onSignedInInitialize(user.getDisplayName()); // if signed in
-                 } else {
-                    // User is signed out
-                    // sign in page will come here, code below is all about UI
-                    onSignedOutCleanUp();
-                    startActivityForResult(
-                            AuthUI.getInstance()
-                                    .createSignInIntentBuilder()
-                                    .setIsSmartLockEnabled(false)
-                                    .setAvailableProviders(
-                                            Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
-                                                    new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
-                                    .build(),
-                            RC_SIGN_IN);;
-                 }
-
-            }
-        };
     }
 
     // this part protects to not to go back
@@ -150,14 +189,22 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_menu, menu);
-        return true;
+        if(isConnected)
+        {
+            inflater.inflate(R.menu.main_menu, menu);
+            return true;
+        }
+        return false;
+
     }
 
     @Override
     public void onResume() {
         super.onStart();
-        mAuth.addAuthStateListener(mAuthListener); // if app is resumed, continue with authentication listener
+        if(mAuth != null)
+        {
+            mAuth.addAuthStateListener(mAuthListener); // if app is resumed, continue with authentication listener
+        }
     }
     @Override
     public void onPause() {
@@ -171,6 +218,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
+
         switch (item.getItemId()) {
 
             case R.id.signout:
