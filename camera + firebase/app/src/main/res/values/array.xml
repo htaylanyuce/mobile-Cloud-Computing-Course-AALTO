@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="image_qualities">
+        <item>Full (Original size)</item>
+        <item>High (1280 by 960 pixels)</item>
+        <item>Low (640 by 480 pixels)</item>
+    </string-array>
+    <string-array name="image_qualities_values">
+        <item>full</item>
+        <item>high</item>
+        <item>low</item>
+    </string-array>
+</resources>

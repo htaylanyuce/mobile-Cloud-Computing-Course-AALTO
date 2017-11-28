@@ -1,0 +1,10 @@
+<resources>
+
+
+    <!-- Settings related strings -->
+    <string name="pref_title_wifi_download">Image synchronizing quality when using WiFi</string>
+    <string name="pref_title_wifi_upload">Image upload quality when using WiFi</string>
+    <string name="pref_title_mobile_download">Image synchronizing quality when using mobile data</string>
+    <string name="pref_title_mobile_upload">Image upload quality when using mobile data</string>
+    <string name="pref_quality">Quality</string>
+</resources>
